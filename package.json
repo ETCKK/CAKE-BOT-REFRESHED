@@ -1,0 +1,28 @@
+{
+  "name": "cake-bot-refreshed",
+  "version": "1.0.0",
+  "description": "cake bot refreshed",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commands-global": "node src/commands.js global",
+    "commands-guild": "node src/commands.js guild",
+    "commands-guild-clear": "node src/commands.js guild-clear"
+  },
+  "author": "ETCKK",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.18.0",
+    "axios": "^1.10.0",
+    "child_process": "^1.0.2",
+    "discord-speech-to-text": "^1.1.5",
+    "discord.js": "^14.20.0",
+    "dotenv": "^16.5.0",
+    "form-data": "^4.0.3",
+    "fs": "^0.0.1-security",
+    "google-tts-api": "^2.0.2",
+    "groq-sdk": "^0.25.0",
+    "require": "^2.4.20"
+  }
+}

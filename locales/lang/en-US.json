@@ -1,0 +1,17 @@
+{
+    "commands": {
+        "ping": {},
+
+        "join": {
+            "noVoiceChannel": "You need to be in a voice channel to use this command.",
+            "joined": "Joined the voice channel: ",
+            "botLeft": ["Left the voice channel: ",  "Reason: "]
+        },
+
+        "leave":{
+            "noVoiceChannel": "You need to be in a voice channel to use this command.",
+            "notBotVoiceChannel": "I am not currently in a voice channel.",
+            "left": "Left the voice channel: "
+        }
+    }
+}

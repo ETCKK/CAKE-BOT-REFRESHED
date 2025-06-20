@@ -1,0 +1,17 @@
+{
+    "commands": {
+        "ping": {},
+
+        "join": {
+            "noVoiceChannel": "Bu komutu kullanmak için bir sesli kanalda olmalısın.",
+            "joined": "Sesli kanala giriş yapıldı: ",
+            "botLeft": ["Sesli kanaldan çıkış yapıldı: ", "Sebep: "]
+        },
+        
+        "leave": {
+            "noVoiceChannel": "Bu komutu kullanmak için bir sesli kanalda olmalısın.",
+            "notBotVoiceChannel": "Şu anda bir sesli kanalda değilim.",
+            "left": "Sesli kanaldan çıkış yapıldı: "
+        }
+    }
+}   

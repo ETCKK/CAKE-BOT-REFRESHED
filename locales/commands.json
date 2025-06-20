@@ -1,0 +1,37 @@
+{
+    "ping": {
+        "name": {
+            "en-US": "ping",
+            "tr": "ping"
+        },
+
+        "description":{
+            "en-US": "Replies with Pong!",
+            "tr": "Pong! diye cevap verir."
+        }
+    },
+
+    "join": {
+        "name": {
+            "en-US": "join",
+            "tr": "katıl"
+        },
+
+        "description": {
+            "en-US": "Joins the current voice channel.",
+            "tr": "Bulunduğun sesli kanala giriş yapar."
+        }
+    },
+
+    "leave": {
+        "name": {
+            "en-US": "leave",
+            "tr": "ayrıl"
+        },
+
+        "description": {
+            "en-US": "Leaves the current voice channel.",
+            "tr": "Bulunduğun sesli kanaldan ayrılır."
+        }
+    }
+}
