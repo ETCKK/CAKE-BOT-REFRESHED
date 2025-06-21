@@ -5,9 +5,9 @@
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "commands-global": "node src/commands.js global",
-    "commands-guild": "node src/commands.js guild",
-    "commands-guild-clear": "node src/commands.js guild-clear"
+    "commands-global": "node src/deploy_commands.js global",
+    "commands-guild": "node src/deploy_commands.js guild",
+    "commands-guild-clear": "node src/deploy_commands.js guild-clear"
   },
   "author": "ETCKK",
   "license": "ISC",

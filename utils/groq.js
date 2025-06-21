@@ -3,19 +3,17 @@ const instructions = require('../locales/instructions.json');
 
 const groq = new Groq({apiKey: process.env.GROQ_API_KEY});
 
-messageHistory = [];
+memory = [];
 
 async function queryGroq(prompt, user) {
     const content = '"' + user.username + '" ' + prompt;
 
-    messageHistory.push({
+    memory.push({
         "role": "user",
         "content": content
     });
 
-    if (messageHistory.length > 25) {
-        messageHistory.shift();
-    }
+    if (memory.length > 25) memory.shift();
 
     const chatCompletion = await groq.chat.completions.create({
       "messages": [
@@ -23,9 +21,9 @@ async function queryGroq(prompt, user) {
           "role": "system",
           "content": instructions.en
         },
-        ...messageHistory
+        ...memory
       ],
-      "model": "llama-3.1-8b-instant",
+      "model": "gemma2-9b-it",
       "temperature": 1,
       "max_completion_tokens": 1024,
       "top_p": 1,
@@ -33,7 +31,15 @@ async function queryGroq(prompt, user) {
       "stop": null
     });
 
-    return chatCompletion.choices[0].message.content || "!silent";
+    const answer = chatCompletion.choices[0].message.content || "!silent";
+    memory.push({
+        "role": "assistant",
+        "content": answer
+    });
+
+    if (memory.length > 25) memory.shift();
+
+    return answer;
 }
 
 module.exports = { queryGroq };

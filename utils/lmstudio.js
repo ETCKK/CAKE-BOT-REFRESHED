@@ -1,17 +1,16 @@
 const axios = require('axios');
 const instructions = require('../locales/instructions.json');
+const { memo } = require('react');
 
-const messageHistory = [];
+const memory = [];
 
 async function queryLMStudio(prompt, user) {
 
     const content = '"' + user.username + '" ' + prompt;
 
-    messageHistory.push({ role: "user", content: content });
+    memory.push({ role: "user", content: content });
 
-    if (messageHistory.length > 25) {
-        messageHistory.shift();
-    }
+    if (memory.length > 25) memory.shift();
 
     const response = await axios.post(
         'http://127.0.0.1:1234/v1/chat/completions',
@@ -23,13 +22,24 @@ async function queryLMStudio(prompt, user) {
                     role: "system", 
                     content: instructions.tr
                 },
-                ...messageHistory,
+                ...memory,
                 { role: "user", content: content }
             ],
             max_tokens: 512,
         }
     );
-    return response.data.choices[0].message.content;
+    const answer = response.data.choices[0].message.content;
+
+    memory.push({ 
+        role: "assistant", 
+        content: answer 
+    });
+
+    if (memory.length > 25) memory.shift();
+
+    return answer;
 }
+
+
 
 module.exports = { queryLMStudio };

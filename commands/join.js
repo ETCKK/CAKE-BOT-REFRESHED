@@ -45,20 +45,26 @@ module.exports = {
                 let user = data.user;
 
                 // Send query to Groq (API) or LM Studio (Local)
-                const answer = await queryLMStudio(text, user);
+                const answer = await queryGroq(text, user);
 
-                if (answer.includes('!quit')) {
-                    const reason = answer.substring(answer.indexOf('!quit') + 6);
+                if (answer.startsWith('!quit')) {
+                    const reason = answer.substring(6);
                     if (connection) {
                         connection.destroy();
-                        return await interaction.channel.send(locales.botLeft[0] + channel.name + ". " + locales.botLeft[1] + reason);
+                        return await interaction.channel.send(locales.botLeft[0] + channel.name + "\n" + locales.botLeft[1] + reason);
                     }
                 }
 
-                if (!answer.includes('!silent')){
-                
-                    const parts = googleTTS.getAllAudioUrls(answer, {
-                        lang: 'tr', // Change to your desired language (e.g., 'tr' for Turkish)
+                if (answer.startsWith('!silent')) {
+                    interaction.channel.send("sessiz kalmayı tercih etti.");
+                    
+                }else if (answer.startsWith("!text")){
+                    const message = answer.substring(6);
+                    interaction.channel.send(message);
+                }else if (answer.startsWith("!voice")){
+                    const voice = answer.substring(7);
+                    const parts = googleTTS.getAllAudioUrls(voice, {
+                        lang: 'tr',
                         slow: false,
                         host: 'https://translate.google.com',
                     });
@@ -67,7 +73,6 @@ module.exports = {
                         const url = part.url;
                         const resource = createAudioResource(url);
 
-                        // Play the TTS audio in the voice channel
                         player.play(resource);
                     }
 
