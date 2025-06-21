@@ -20,6 +20,17 @@
         "description": {
             "en-US": "Joins the current voice channel.",
             "tr": "Bulunduğun sesli kanala giriş yapar."
+        },
+
+        "model": {
+            "name": {
+                "en-US": "model",
+                "tr": "model"
+            },
+            "description": {
+                "en-US": "Sets the language model used for speaking.",
+                "tr": "Konuşma için kullanılan dil modelini ayarlar."
+            }
         }
     },
 

@@ -1,6 +1,6 @@
 const axios = require('axios');
-const instructions = require('../locales/instructions.json');
-const { memo } = require('react');
+const instructions = require('../../locales/instructions.json');
+require('dotenv').config();
 
 const memory = [];
 

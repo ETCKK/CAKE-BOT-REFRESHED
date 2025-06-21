@@ -1,5 +1,6 @@
 const { Groq } = require('groq-sdk');
-const instructions = require('../locales/instructions.json');
+const instructions = require('../../locales/instructions.json');
+require('dotenv').config();
 
 const groq = new Groq({apiKey: process.env.GROQ_API_KEY});
 
@@ -23,7 +24,7 @@ async function queryGroq(prompt, user) {
         },
         ...memory
       ],
-      "model": "gemma2-9b-it",
+      "model": "llama3-70b-8192",
       "temperature": 1,
       "max_completion_tokens": 1024,
       "top_p": 1,

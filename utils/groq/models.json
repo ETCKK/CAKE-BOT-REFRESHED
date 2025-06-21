@@ -1,0 +1,8 @@
+[
+    {"name": "llama3-70b-8192", "value": "llama3-70b-8192"},
+    {"name": "llama-3.3-70b-versatile", "value": "llama-3.3-70b-versatile"},
+    {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "value": "meta-llama/llama-4-scout-17b-16e-instruct"},
+    {"name": "llama3-8b-8192", "value": "llama3-8b-8192"},
+    {"name": "llama-3.1-8b-instant", "value": "llama-3.1-8b-instant"},
+    {"name": "gemma2-9b-it", "value": "gemma2-9b-it"}
+]

@@ -1,9 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
-const { queryLMStudio } = require('../utils/lmstudio.js');
-const { queryGroq } = require('../utils/groq.js');
+const { queryLMStudio } = require('../utils/lmstudio/lmstudio.js');
+const { queryGroq } = require('../utils/groq/groq.js');
+const { queryOpenAI } = require('../utils/openai/openai.js');
+const openai_models = require('../utils/openai/models.json');
 const Transcriber = require("discord-speech-to-text");
+const ConnectionHandler = require('../handlers/ConnectionHandler.js');
 const googleTTS = require('google-tts-api');
+const { on } = require('form-data');
 require('dotenv').config();
 
 const command = require("../locales/commands.json").join;
@@ -12,17 +16,32 @@ module.exports = {
         .setName(command.name['en-US'])
         .setDescription(command.description['en-US'])
         .setNameLocalizations(command.name)
-        .setDescriptionLocalizations(command.description),
+        .setDescriptionLocalizations(command.description)
+        .addStringOption(option =>
+            option
+                .setName(command.model.name['en-US'])
+                .setDescription(command.model.description['en-US'])
+                .setNameLocalizations(command.model.name)
+                .setDescriptionLocalizations(command.model.description)
+                .addChoices(
+                    ...openai_models
+                )
+                .setRequired(true)
+        ),
     async execute(interaction, client, locales) {
-        
+        var speakingCount = 0;
+
+        const model = interaction.options.getString(command.model.name['en-US']) || "gpt-4o";
 
         const transcriber = new Transcriber(process.env.WIT_TOKEN);
 
-        const channel = interaction.member.guild.channels.cache.get(interaction.member.voice.channel.id);
-        
+        const channel = interaction.member.voice.channel;
+
         if (!channel) {
             return await interaction.reply(locales.noVoiceChannel);
         }
+
+
 
         const connection = joinVoiceChannel({
             channelId: channel.id,
@@ -37,15 +56,35 @@ module.exports = {
         const player = createAudioPlayer();
         connection.subscribe(player);
 
+        var on_process = false;
         connection.receiver.speaking.on("start", async (userId) => {
+            speakingCount++;
+            if (on_process) return;
             await transcriber.listen(connection.receiver, userId, client.users.cache.get(userId)).then(async (data) => {
-                
-                if (!data.transcript.text) return;
-                let text = data.transcript.text;
-                let user = data.user;
 
-                // Send query to Groq (API) or LM Studio (Local)
-                const answer = await queryGroq(text, user);
+                if (!data.transcript.text) return;
+
+                let user = data.user;
+                let text = `"${user.username}" ${data.transcript.text}`;
+
+                interaction.channel.send("***Transcriber:*** " + text);
+
+                ConnectionHandler.addPrompt(text);
+                ///
+                if (ConnectionHandler.promptMemory.length == 0) return;
+
+                if (speakingCount > 0 && ConnectionHandler.promptMemory.length < 3) return;
+
+                const content = ConnectionHandler.combinePrompts();
+                console.log(ConnectionHandler.promptMemory);
+                ConnectionHandler.clearPrompts();
+
+                on_process = true;
+
+                // Send query to Groq (API) or LM Studio (Local) or OpenAI (API)
+                var answer = await queryOpenAI(content, model);
+
+                console.log('"CAKE BOT" ' + answer);
 
                 if (answer.startsWith('!quit')) {
                     const reason = answer.substring(6);
@@ -57,11 +96,13 @@ module.exports = {
 
                 if (answer.startsWith('!silent')) {
                     interaction.channel.send("sessiz kalmayı tercih etti.");
-                    
-                }else if (answer.startsWith("!text")){
+                    on_process = false;
+
+                } else if (answer.startsWith("!text")) {
                     const message = answer.substring(6);
                     interaction.channel.send(message);
-                }else if (answer.startsWith("!voice")){
+                    on_process = false;
+                } else if (answer.startsWith("!voice")) {
                     const voice = answer.substring(7);
                     const parts = googleTTS.getAllAudioUrls(voice, {
                         lang: 'tr',
@@ -74,11 +115,25 @@ module.exports = {
                         const resource = createAudioResource(url);
 
                         player.play(resource);
+
+                        player.once("idle", () => {
+                            on_process = false;
+                        });
+
                     }
 
                     //interaction.channel.send(`**${user.username}:** ${text}`);
                 }
+
             });
+        });
+
+        connection.receiver.speaking.on("end", async (userId) => {
+
+            speakingCount--;
+
+
+
         });
     },
 }
