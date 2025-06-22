@@ -1,48 +1,55 @@
 {
+    "default": "en-US",
     "ping": {
         "name": {
             "en-US": "ping",
             "tr": "ping"
         },
-
-        "description":{
+        "description": {
             "en-US": "Replies with Pong!",
             "tr": "Pong! diye cevap verir."
         }
     },
-
     "join": {
         "name": {
             "en-US": "join",
             "tr": "katıl"
         },
-
         "description": {
             "en-US": "Joins the current voice channel.",
             "tr": "Bulunduğun sesli kanala giriş yapar."
-        },
-
-        "model": {
-            "name": {
-                "en-US": "model",
-                "tr": "model"
-            },
-            "description": {
-                "en-US": "Sets the language model used for speaking.",
-                "tr": "Konuşma için kullanılan dil modelini ayarlar."
-            }
         }
     },
-
     "leave": {
         "name": {
             "en-US": "leave",
             "tr": "ayrıl"
         },
-
         "description": {
             "en-US": "Leaves the current voice channel.",
             "tr": "Bulunduğun sesli kanaldan ayrılır."
+        }
+    },
+    "model": {
+        "name": {
+            "en-US": "model",
+            "tr": "model"
+        },
+        "description": {
+            "en-US": "Sets the model for the bot to use. Leave empty to see the current model.",
+            "tr": "Botun kullanacağı modeli ayarlar. Mevcut modeli görmek için boş bırak."
+        },
+        "options": {
+            "model": {
+                "name": {
+                    "en-US": "model-name",
+                    "tr": "model-ismi"
+                },
+                "description": {
+                    "en-US": "The model to set for the bot.",
+                    "tr": "Bot için ayarlanacak model."
+                }
+            }
         }
     }
 }

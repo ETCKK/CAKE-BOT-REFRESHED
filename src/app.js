@@ -6,6 +6,7 @@ require('dotenv').config();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 
 client.commands = new Collection();
+client.model = require('../utils/openai/models.json')[0];
 
 const commandsPath = path.join(__dirname, '../commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -17,7 +18,6 @@ for (const file of commandFiles) {
         client.commands.set(command.data.name, command);
     }
 }
-
 
 client.on(Events.ClientReady, readyClient => {
     console.log(`Logged in as ${readyClient.user.tag}!`);

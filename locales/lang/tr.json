@@ -1,17 +1,24 @@
 {
     "commands": {
         "ping": {},
-
         "join": {
             "noVoiceChannel": "Bu komutu kullanmak için bir sesli kanalda olmalısın.",
+            "connectionError": "Sesli kanala bağlanırken bir hata oluştu.",
             "joined": "Sesli kanala giriş yapıldı: ",
-            "botLeft": ["Sesli kanaldan çıkış yapıldı: ", "Sebep: "]
+            "botLeft": [
+                "Sesli kanaldan çıkış yapıldı: ",
+                "Sebep: "
+            ]
         },
-        
         "leave": {
             "noVoiceChannel": "Bu komutu kullanmak için bir sesli kanalda olmalısın.",
             "notBotVoiceChannel": "Şu anda bir sesli kanalda değilim.",
+            "destroyError": "Sesli kanaldan çıkarken bir hata oluştu.",
             "left": "Sesli kanaldan çıkış yapıldı: "
+        },
+        "model": {
+            "modelGet": "Mevcut model: ",
+            "modelSet": "Model ayarlandı: "
         }
     }
-}   
+}

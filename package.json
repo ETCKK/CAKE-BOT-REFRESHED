@@ -14,6 +14,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.18.0",
+    "@elevenlabs/elevenlabs-js": "^2.3.0",
     "axios": "^1.10.0",
     "child_process": "^1.0.2",
     "discord-speech-to-text": "^1.1.5",

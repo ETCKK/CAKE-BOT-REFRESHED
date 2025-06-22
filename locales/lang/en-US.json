@@ -1,17 +1,24 @@
 {
     "commands": {
         "ping": {},
-
         "join": {
             "noVoiceChannel": "You need to be in a voice channel to use this command.",
+            "connectionError": "An error occurred while trying to connect to the voice channel.",
             "joined": "Joined the voice channel: ",
-            "botLeft": ["Left the voice channel: ",  "Reason: "]
+            "botLeft": [
+                "Left the voice channel: ",
+                "Reason: "
+            ]
         },
-
-        "leave":{
+        "leave": {
             "noVoiceChannel": "You need to be in a voice channel to use this command.",
             "notBotVoiceChannel": "I am not currently in a voice channel.",
+            "destroyError": "An error occurred while trying to leave the voice channel.",
             "left": "Left the voice channel: "
+        },
+        "model": {
+            "modelGet": "Current model: ",
+            "modelSet": "Model set to: "
         }
     }
 }

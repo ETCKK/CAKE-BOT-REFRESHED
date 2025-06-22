@@ -28,7 +28,12 @@ async function queryOpenAI(content, model) {
         memory.push({ role: "assistant", content: answer });
         if (memory.length > 25) memory.shift();
 
-        return answer;
+        const splitted = answer.split(" ");
+
+        return {
+            command: splitted[0],
+            content: splitted.slice(1).join(" ")
+        };
 
     } catch (error) {
         console.error('❌ OpenAI API error:', error.message);

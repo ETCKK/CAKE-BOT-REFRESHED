@@ -15,13 +15,19 @@ module.exports = {
         if (!voiceChannel) {
             return await interaction.reply(locales.noVoiceChannel);
         }
-        
+
         const connection = getVoiceConnection(voiceChannel.guild.id);
         if (!connection) {
             return await interaction.reply(locales.noBotVoiceChannel);
         }
 
-        connection.destroy()
-        interaction.reply(locales.left + voiceChannel.name)
+        try {
+            connection.destroy();
+            interaction.reply(locales.left + voiceChannel.name);
+        } catch (error) {
+            console.error(error);
+            return await interaction.reply(locales.destroyError);
+        }
+
     },
 };
