@@ -1,8 +1,8 @@
-const { createAudioPlayer, createAudioResource, StreamType } = require('@discordjs/voice');
+const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
 const { queryOpenAI } = require('../utils/openai/openai.js');
+const { getGoogleTTS } = require('../utils/TTS/googleTTS.js');
 const Transcriber = require("discord-speech-to-text");
-const googleTTS = require('google-tts-api');
-const { elevenTTS } = require('../utils/elevenTTS.js');
+const { name } = require('../events/voiceChannelEffectSend.js');
 require('dotenv').config();
 
 class VoiceConnectionHandler {
@@ -38,6 +38,7 @@ class VoiceConnectionHandler {
     }
 
     async onSpeakingStart(userId) {
+        if (this.client.users.cache.get(userId).bot) return;
         this.speakers.add(userId);
 
         const data = await this.transcriber.listen(this.connection.receiver, userId, this.client.users.cache.get(userId));
@@ -46,6 +47,7 @@ class VoiceConnectionHandler {
     }
 
     async onSpeakingEnd(userId) {
+        if (this.client.users.cache.get(userId).bot) return;
         this.speakers.delete(userId);
     }
 
@@ -55,6 +57,7 @@ class VoiceConnectionHandler {
 
         const prompt = {
             user: data.user,
+            command: "!voice",
             text: data.transcript.text
         };
 
@@ -65,14 +68,14 @@ class VoiceConnectionHandler {
 
         this.processing = true;
 
-        const content = this.promptBuffer.map(p => `"${p.user.username}" ${p.text}`).join("\n");
+        const input = [...this.promptBuffer];
 
         this.promptBuffer = [];
 
-        const answer = await queryOpenAI(content, this.client.model.value);
+        const answer = await queryOpenAI(input, this.client.model.value);
 
         switch (answer.command) {
-            case "!quit":
+            case "!leave":
                 this.destroy();
                 await this.interaction.channel.send(this.locales.botLeft[0] + this.channel.name + "\n" + this.locales.botLeft[1] + answer.content);
                 return;
@@ -86,6 +89,23 @@ class VoiceConnectionHandler {
             case "!voice":
                 this.textToSpeech(answer.content);
                 break;
+            case "!sound":
+                let soundId;
+                switch (answer.content) {
+                    case "boom":
+                        soundId = this.client.soundboardSounds.findKey(name => name === "boom");
+                        break;
+                    case "what_the_hell":
+                        soundId = this.client.soundboardSounds.findKey(name => name === "what_the_hell");
+                        break;
+                    default:
+                        break;
+
+                }
+
+                if (soundId) this.soundBoardSound(soundId);
+                this.processing = false;
+                break;
             default:
                 break;
         }
@@ -94,27 +114,18 @@ class VoiceConnectionHandler {
 
     async textToSpeech(text, lang = "tr") {
 
-        //Google TTS
-        const parts = googleTTS.getAllAudioUrls(text, {
-            lang: lang,
-            slow: false,
-            host: 'https://translate.google.com',
-        });
+        const stream = getGoogleTTS(text, lang);
 
-        for (const part of parts) {
-            const url = part.url;
-            const resource = createAudioResource(url);
-            this.player.play(resource);
-            this.player.once('idle', () => this.processing = false);
-        }
+        const resource = createAudioResource(stream.data, stream.options);
 
-        /*
-        // ElevenLabs TTS
-        const stream = await elevenTTS(text);
-        const resource = createAudioResource(stream, { inputType: StreamType.Raw });
         this.player.play(resource);
         this.player.once('idle', () => this.processing = false);
-        */
+    }
+
+    async soundBoardSound(soundId) {
+        const sound = this.channel.guild.soundboardSounds.cache.get(soundId);
+        if (!sound) return;
+        this.channel.sendSoundboardSound(sound);
     }
 
     checkForDuplicate(data) {
@@ -132,6 +143,7 @@ class VoiceConnectionHandler {
 
     async destroy() {
         if (this.connection) {
+            this.client.voiceConnections.delete(this.channel.id);
             await this.connection.destroy();
             this.processing = false;
             this.speakers = new Set();

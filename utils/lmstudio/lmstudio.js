@@ -4,40 +4,51 @@ require('dotenv').config();
 
 const memory = [];
 
-async function queryLMStudio(prompt, user) {
+async function queryLMStudio(input, model) {
 
-    const content = '"' + user.username + '" ' + prompt;
+    const content = Array.isArray(input)
+        ? input.map(prompt => `"${prompt.user.username}": ${prompt.command} ${prompt.text}`).join(',\n')
+        : `"${input.user.username}": ${input.command} ${input.text}`;
 
     memory.push({ role: "user", content: content });
 
-    if (memory.length > 25) memory.shift();
+    while (memory.length > 25) {
+        memory.shift();
+    }
 
-    const response = await axios.post(
-        'http://127.0.0.1:1234/v1/chat/completions',
-        {
-            model: 'turkish-llama-8b-instruct-v0.1',
-            messages: 
-            [
-                { 
-                    role: "system", 
-                    content: instructions.tr
-                },
-                ...memory,
-                { role: "user", content: content }
-            ],
-            max_tokens: 512,
+    try {
+
+        const response = await axios.post(
+            'http://127.0.0.1:1234/v1/chat/completions',
+            {
+                model: model,
+                messages:
+                    [
+                        {
+                            role: "system",
+                            content: instructions.en
+                        },
+                        ...memory,
+                        { role: "user", content: content }
+                    ],
+                max_tokens: 512,
+            }
+        );
+
+        const answer = response.data.choices[0].message.content;
+        memory.push({ role: "assistant", content: answer });
+
+        const splitted = answer.split(" ");
+
+        return {
+            command: splitted[0],
+            content: splitted.slice(1).join(" ")
+
         }
-    );
-    const answer = response.data.choices[0].message.content;
-
-    memory.push({ 
-        role: "assistant", 
-        content: answer 
-    });
-
-    if (memory.length > 25) memory.shift();
-
-    return answer;
+    } catch (error) {
+        console.error('❌ LM Studio Server error:', error.message);
+        return '!silent';
+    }
 }
 
 

@@ -3,6 +3,7 @@
         "ping": {},
         "join": {
             "noVoiceChannel": "You need to be in a voice channel to use this command.",
+            "alreadyConnected": "I am already connected to that voice channel.",
             "connectionError": "An error occurred while trying to connect to the voice channel.",
             "joined": "Joined the voice channel: ",
             "botLeft": [

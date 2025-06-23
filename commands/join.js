@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { joinVoiceChannel } = require('@discordjs/voice');
 const VoiceConnectionHandler = require('../handlers/VoiceConnectionHandler.js');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 const command = require("../locales/commands.json").join;
 module.exports = {
@@ -18,6 +18,10 @@ module.exports = {
 
         const channel = interaction.guild.channels.cache.get(interaction.member.voice.channel.id);
 
+        if (client.voiceConnections.has(channel.id)) {
+            return await interaction.reply(locales.alreadyConnected);
+        }
+
         const connection = joinVoiceChannel({
             channelId: channel.id,
             guildId: channel.guild.id,
@@ -30,15 +34,17 @@ module.exports = {
             return await interaction.reply(locales.connectionError);
         }
 
+        client.voiceConnections.set(channel.id, connection);
+
         interaction.reply(locales.joined + channel.name);
 
-        const handler = new VoiceConnectionHandler({
+        connection.handler = new VoiceConnectionHandler({
             connection: connection,
             channel: channel,
             interaction: interaction,
             locales: locales
         });
 
-        handler.init();
+        connection.handler.init();
     },
 }

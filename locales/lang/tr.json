@@ -4,6 +4,7 @@
         "join": {
             "noVoiceChannel": "Bu komutu kullanmak için bir sesli kanalda olmalısın.",
             "connectionError": "Sesli kanala bağlanırken bir hata oluştu.",
+            "alreadyConnected": "Zaten bu sesli kanalda bağlıyım.",
             "joined": "Sesli kanala giriş yapıldı: ",
             "botLeft": [
                 "Sesli kanaldan çıkış yapıldı: ",

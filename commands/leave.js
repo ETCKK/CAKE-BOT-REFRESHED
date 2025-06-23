@@ -23,6 +23,7 @@ module.exports = {
 
         try {
             connection.destroy();
+            client.voiceConnections.delete(voiceChannel.id);
             interaction.reply(locales.left + voiceChannel.name);
         } catch (error) {
             console.error(error);

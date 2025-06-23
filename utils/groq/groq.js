@@ -2,45 +2,61 @@ const { Groq } = require('groq-sdk');
 const instructions = require('../../locales/instructions.json');
 require('dotenv').config();
 
-const groq = new Groq({apiKey: process.env.GROQ_API_KEY});
+let groq = null;
+if (process.env.GROQ_API_KEY) {
+    groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+}
 
 memory = [];
 
-async function queryGroq(prompt, user) {
-    const content = '"' + user.username + '" ' + prompt;
+async function queryGroq(input, model) {
 
-    memory.push({
-        "role": "user",
-        "content": content
-    });
+    if (!groq) {
+        throw new Error("GROQ_API_KEY is missing. Please set it in the .env file.");
+    }
 
-    if (memory.length > 25) memory.shift();
+    const content = Array.isArray(input)
+        ? input.map(prompt => `"${prompt.user.username}": ${prompt.command} ${prompt.text}`).join(',\n')
+        : `"${input.user.username}": ${input.command} ${input.text}`;
 
-    const chatCompletion = await groq.chat.completions.create({
-      "messages": [
-        {
-          "role": "system",
-          "content": instructions.en
-        },
-        ...memory
-      ],
-      "model": "llama3-70b-8192",
-      "temperature": 1,
-      "max_completion_tokens": 1024,
-      "top_p": 1,
-      "stream": false,
-      "stop": null
-    });
+    memory.push({ "role": "user", "content": content });
 
-    const answer = chatCompletion.choices[0].message.content || "!silent";
-    memory.push({
-        "role": "assistant",
-        "content": answer
-    });
+    while (memory.length > 25) {
+        memory.shift();
+    }
 
-    if (memory.length > 25) memory.shift();
+    try {
 
-    return answer;
+        const chatCompletion = await groq.chat.completions.create({
+            "messages": [
+                {
+                    "role": "system",
+                    "content": instructions.en
+                },
+                ...memory
+            ],
+            "model": model,
+            "temperature": 1,
+            "max_completion_tokens": 70,
+            "top_p": 1,
+            "stream": false,
+            "stop": null
+        });
+
+        const answer = chatCompletion.choices[0].message.content || "!silent";
+        memory.push({ "role": "assistant", "content": answer });
+
+        const splitted = answer.split(" ");
+
+        return {
+            command: splitted[0],
+            content: splitted.slice(1).join(" ")
+        };
+
+    } catch (error) {
+        console.error('❌ Groq API error:', error.message);
+        return '!silent';
+    }
 }
 
 module.exports = { queryGroq };
