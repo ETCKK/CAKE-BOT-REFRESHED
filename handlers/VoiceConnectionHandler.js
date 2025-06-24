@@ -2,6 +2,7 @@ const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
 const { queryOpenAI } = require('../utils/openai/openai.js');
 const { getGoogleTTS } = require('../utils/TTS/googleTTS.js');
 const Transcriber = require("discord-speech-to-text");
+const play = require('play-dl');
 const { name } = require('../events/voiceChannelEffectSend.js');
 require('dotenv').config();
 
@@ -89,6 +90,9 @@ class VoiceConnectionHandler {
             case "!voice":
                 this.textToSpeech(answer.content);
                 break;
+            case "!youtube":
+                await this.searchAndPlay(answer.content);
+                break;
             case "!sound":
                 let soundId;
                 switch (answer.content) {
@@ -110,6 +114,30 @@ class VoiceConnectionHandler {
                 break;
         }
 
+    }
+
+    async searchAndPlay(query) {
+        console.log(`video searching : ${query}`);
+
+        const searchResults = await play.search(query, { limit: 1 });
+
+
+        if (!searchResults.length || !searchResults[0].url) {
+            //await this.textToSpeech("No YouTube results found.");
+            return;
+        }
+
+        const video = searchResults[0];
+
+        console.log(`video selected : ${video.title}`);
+        console.log(`video url : ${video.url}`);
+
+        const stream = await play.stream(video.url, { discordPlayerCompatibility: true });
+
+        const resource = createAudioResource(stream.stream, { inputType: stream.type });
+
+        this.player.play(resource);
+        this.player.once('idle', () => this.processing = false);
     }
 
     async textToSpeech(text, lang = "tr") {
@@ -150,6 +178,7 @@ class VoiceConnectionHandler {
             this.promptBuffer = [];
         }
     }
+
 
 }
 
